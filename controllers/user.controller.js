@@ -1,21 +1,30 @@
 const { StatusCodes } = require("http-status-codes");
 const baseResponse = require("../dto/baseResponse.dto");
 const userService = require("../services/index");
+const utils = require("../utils/index");
 
 exports.register = async (req, res) => {
   try {
+    const isInvalid = utils.handleValidation(req);
+    if (isInvalid) {
+      return res 
+        .status(StatusCodes.BAD_REQUEST)
+        .json(isInvalid); 
+    }
+
     const data = await userService.userService.register(req);
-    res
+    return res 
+      .status(StatusCodes.CREATED)  
       .json({
         ...baseResponse,
         data: data,
         timestamp: new Date(),
         message: "Kayıt başarılı",
         code: StatusCodes.CREATED,
-      })
-      .status(StatusCodes.CREATED);
+      });
   } catch (error) {
-    res
+    return res 
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({
         ...baseResponse,
         error: true,
@@ -23,8 +32,7 @@ exports.register = async (req, res) => {
         timestamp: new Date(),
         code: StatusCodes.INTERNAL_SERVER_ERROR,
         message: error.message,
-      })
-      .status(StatusCodes.INTERNAL_SERVER_ERROR);
+      });
   }
 };
 

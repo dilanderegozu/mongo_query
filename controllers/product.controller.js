@@ -1,9 +1,16 @@
 const { StatusCodes } = require("http-status-codes");
 const productService = require("../services/index");
 const BaseResponse = require("../dto/baseResponse.dto");
+const utils = require("../utils/index")
 
 exports.createProduct = async (req, res) => {
   try {
+    const isInvalid = utils.handleValidation(req)
+     if (isInvalid) {
+      return res 
+        .status(StatusCodes.BAD_REQUEST)
+        .json(isInvalid); 
+    }
     const data = await productService.productService.createProduct(req);
     return res
       .status(StatusCodes.CREATED)

@@ -1,9 +1,23 @@
 const md5 = require("md5");
-
+const { validationResult } = require("express-validator");
+const { StatusCodes } = require("http-status-codes");
 exports.hashToPassword = (password) => {
   return md5(password);
 };
-
+exports.handleValidation = (req) => {
+  const validationErrors = validationResult(req);
+  if (validationErrors.isEmpty() == false) {
+    return {
+      message: "Geçersiz veri",
+      success: false,
+      validationErrors: validationErrors.array(),
+      error: true,
+      timestamp: Date.now(),
+      code: StatusCodes.BAD_REQUEST,
+    };
+  }
+  return null;
+};
 exports.calculateZodiac = (day, month) => {
   const d = Number(day);
   const m = Number(month);
@@ -40,7 +54,7 @@ exports.calculateZodiac = (day, month) => {
 
 // const bcrypt = require('bcrypt');
 // exports.hashToPassword = async (password) => {
-//     const timeout = 10; 
+//     const timeout = 10;
 //     return await bcrypt.hash(password, timeout);
 // };
 // exports.comparePassword = async (password, hashedPassword) => {

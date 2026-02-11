@@ -3,33 +3,25 @@ const utils = require("../utils/index");
 
 exports.register = async (req) => {
   try {
-    const { name, surname, email, password, gender, age, day, month } =
-      req.body;
-
-    const existUser = await User.findOne({ email });
+    const { name, surname, email, password } = req.body;
+    const existUser = await User.findOne({ email: email });
     if (existUser) {
       throw new Error("Email zaten kullanımda");
     }
-
-  const _password = utils.hashToPassword(password);
-    const userZodiac = utils.calculateZodiac(day, month);
-
+    const _password = utils.hashToPassword(password);
     const user = new User({
       name,
       surname,
-      password: _password,
       email,
-      gender,
-      age,
-      zodiac: userZodiac,
+      password: _password,
     });
-
     await user.save();
     return user;
   } catch (error) {
     throw new Error(error);
   }
 };
+
 
 exports.login = async (req, res) => {
   try {
