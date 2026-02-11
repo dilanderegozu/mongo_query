@@ -1,20 +1,19 @@
 const express = require("express");
-const db = require("./db/db");
-const config = require("./config/server.config");
-const userRouter = require("./routers/user.router");
-const productRouter = require("./routers/product.router");
+const db = require("./db/index");
+const config = require("./config/index");
+const router = require("./routers/index")
 const app = express();
 app.use(express.json());
 
-config.initialServerConfig();
+config.serverConfig.initialServerConfig();
 
 const PORT = process.env.PORT;
 
-app.use("/user", userRouter.user);
-app.use("/product", productRouter.product);
+app.use("/user", router.userRouter);
+app.use("/product", router.productRouter);
 
 
-db.mongoConnect()
+db.db.mongoConnect()
   .then(() => {
     app.listen(PORT, () => {
       console.log("Server", PORT, "portunda çalışıyor");

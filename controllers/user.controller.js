@@ -1,28 +1,14 @@
 const { StatusCodes } = require("http-status-codes");
-const User = require("../models/user.model");
 const BaseResponse = require("../dto/baseResponse.dto");
-const utils = require("../utils/helper");
-
+const userService = require("../services/index");
 
 exports.register = async (req, res) => {
   try {
-    const { name, surname, email, password } = req.body;
-    const existUser = await User.find({ email: email });
-    if (existUser.length > 0) {
-      throw new Error("Email zaten kullanımda");
-    }
-    const _password = utils.hashToPassword(password);
-    const user = new User({
-      name,
-      surname,
-      email,
-      password: _password,
-    });
-    await user.save();
+    const data = await userService.userService.register(req, res);
     res
       .json({
         ...BaseResponse,
-        data: user,
+        data: data,
         timestamp: new Date(),
         message: "Kayıt başarılı",
         code: StatusCodes.CREATED,
@@ -42,10 +28,3 @@ exports.register = async (req, res) => {
   }
 };
 
-/*
-rotanın adı harf notu hesapla (not-hesapla)-post isteği
-vizenin %40ı finalin %60ı 
-ortalamasına göre harf notunu verin
-res.json içerisinde message alanına geçip geçmeme durumunu da bildirin
-isPAssed alanını da duruma göre güncelleyin
-*/

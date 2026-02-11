@@ -1,221 +1,90 @@
 const { StatusCodes } = require("http-status-codes");
-const Product = require("../models/product.model");
+const productService = require("../services/index");
 const BaseResponse = require("../dto/baseResponse.dto");
 
 exports.createProduct = async (req, res) => {
   try {
-    const { name, price, category, description } = req.body;
-    const product = new Product({
-      name,
-      price,
-      category,
-      description,
-    });
-    await product.save();
+    const data = await productService.productService.createProduct(req);
     return res
       .status(StatusCodes.CREATED)
-      .json(BaseResponse.created(product, "Ürün başarıyla oluşturuldu"));
+      .json(BaseResponse.success(data, "Ürün başarıyla oluşturuldu", StatusCodes.CREATED));
   } catch (error) {
     return res
-      .status(500)
-      .json(baseResponse.error("Ürün oluşturulamadı", error.message, 500));
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(BaseResponse.error("Ürün oluşturulamadı", error.message));
   }
 };
 
 exports.getAllProduct = async (req, res) => {
   try {
-    const product = await Product.find();
+    const data = await productService.productService.getAllProduct();
     return res
       .status(StatusCodes.OK)
-      .json(BaseResponse.success(product, "Ürün başarıyla listelendi"));
+      .json(BaseResponse.success(data, "Ürünler başarıyla listelendi"));
   } catch (error) {
-    res.status(500).json("Ürünler listelenemedi", error.message, 500);
+    return res.status(500).json(BaseResponse.error("Ürünler listelenemedi", error.message));
   }
 };
 
 exports.getProductsByPriceGreater = async (req, res) => {
   try {
-    const { value } = req.params;
-    const product = await Product.find({ price: { $gt: Number(value) } });
-    return res
-      .status(StatusCodes.OK)
-      .json(BaseResponse.created(product, "Ürün başarıyla listelendi"));
+    const data = await productService.productService.getProductsByPriceGreater(req);
+    return res.status(StatusCodes.OK).json(BaseResponse.success(data, "Filtreli ürünler listelendi"));
   } catch (error) {
-    res.status(500).json("Ürünler listelenemedi", error.message, 500);
+    return res.status(500).json(BaseResponse.error("Hata oluştu", error.message));
   }
 };
 
 exports.getProductByFilter = async (req, res) => {
   try {
-    const { val1, val2 } = req.params;
-    const products = await Product.find({
-      price: {
-        $gte: Number(val1),
-        $lte: Number(val2),
-      },
-    });
-
-    return res
-      .status(StatusCodes.OK)
-      .json(BaseResponse.success(products, `${products.length} ürün bulundu`));
+    const data = await productService.productService.getProductByFilter(req);
+    return res.status(StatusCodes.OK).json(BaseResponse.success(data, "Aralık filtresi uygulandı"));
   } catch (error) {
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(BaseResponse.error("Ürünler listelenemedi", error.message));
+    return res.status(500).json(BaseResponse.error("Hata oluştu", error.message));
   }
 };
 
 exports.getProductByFilterPrice = async (req, res) => {
   try {
-    const { val1 } = req.params;
-    const products = await Product.find({ price: { $gte: val1 } });
-    res
-      .status(StatusCodes.OK)
-      .json(BaseResponse.success(products, "Ürünler listelendi", 200));
+    const data = await productService.productService.getProductByFilterPrice(req);
+    return res.status(StatusCodes.OK).json(BaseResponse.success(data, "Fiyat filtresi uygulandı"));
   } catch (error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(BaseResponse.error("Ürünler listelenemedi", error.message));
+    return res.status(500).json(BaseResponse.error("Hata oluştu", error.message));
   }
 };
 
 exports.getQuery = async (req, res) => {
   try {
-    const { name, val1, val2 } = req.params;
-    const products = await Product.find({
-      name: { $eq: name },
-      price: {
-        $gt: Number(val1),
-        $lt: Number(val2),
-      },
-    });
-    res
-      .status(StatusCodes.OK)
-      .json(
-        BaseResponse.success(
-          products,
-          "Sorgu başarıyla çalıştı",
-          StatusCodes.OK,
-        ),
-      );
+    const data = await productService.productService.getQuery(req);
+    return res.status(StatusCodes.OK).json(BaseResponse.success(data, "Sorgu başarıyla çalıştı"));
   } catch (error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(
-        BaseResponse.error(
-          "Sorgulama başarısız",
-          error.message,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ),
-      );
+    return res.status(500).json(BaseResponse.error("Sorgu hatası", error.message));
   }
 };
 
 exports.getQueryAnd = async (req, res) => {
   try {
-    const { name, val1, val2 } = req.params;
-
-    const products = await Product.find({
-      $and: [
-        { name: { $eq: name } },
-        { stock: { $exists: true } },
-        {
-          price: {
-            $gte: Number(val1),
-            $lte: Number(val2),
-          },
-        },
-      ],
-    });
-
-    res
-      .status(StatusCodes.OK)
-      .json(
-        BaseResponse.success(
-          products,
-          "Sorgu başarıyla çalıştı",
-          StatusCodes.OK,
-        ),
-      );
+    const data = await productService.productService.getQueryAnd(req);
+    return res.status(StatusCodes.OK).json(BaseResponse.success(data, "AND sorgusu başarılı"));
   } catch (error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(
-        BaseResponse.error(
-          "Sorgulama başarısız",
-          error.message,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ),
-      );
+    return res.status(500).json(BaseResponse.error("AND sorgu hatası", error.message));
   }
 };
 
 exports.getQueryOr = async (req, res) => {
   try {
-    const { name, val1, val2 } = req.params;
-
-    const products = await Product.find({
-      $or: [
-        { name: { $eq: name } },
-        { stock: { $exists: true } },
-        {
-          price: {
-            $gte: Number(val1),
-            $lte: Number(val2),
-          },
-        },
-      ],
-    });
-
-    res
-      .status(StatusCodes.OK)
-      .json(
-        BaseResponse.success(
-          products,
-          "Sorgu başarıyla çalıştı",
-          StatusCodes.OK,
-        ),
-      );
+    const data = await productService.productService.getQueryOr(req);
+    return res.status(StatusCodes.OK).json(BaseResponse.success(data, "OR sorgusu başarılı"));
   } catch (error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(
-        BaseResponse.error(
-          "Sorgulama başarısız",
-          error.message,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ),
-      );
+    return res.status(500).json(BaseResponse.error("OR sorgu hatası", error.message));
   }
 };
 
 exports.getQueryFinally = async (req, res) => {
   try {
-    const { val1, val2, val3 } = req.params;
-    const products = await Product.find({
-      description: { $exists: false },
-      stock: { $gt: val1, $lt: val2 },
-      price: { $gt: val3 },
-      name: { $exists: true },
-    });
-    res
-      .status(StatusCodes.OK)
-      .json(
-        BaseResponse.success(
-          products,
-          "Sorgu başarıyla çalıştı",
-          StatusCodes.OK,
-        ),
-      );
-  } catch(error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(
-        BaseResponse.error(
-          "Sorgu başarısız",
-          error.message,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ),
-      );
+    const data = await productService.productService.getQueryFinally(req);
+    return res.status(StatusCodes.OK).json(BaseResponse.success(data, "Final sorgusu başarılı"));
+  } catch (error) {
+    return res.status(500).json(BaseResponse.error("Final sorgu hatası", error.message));
   }
 };
