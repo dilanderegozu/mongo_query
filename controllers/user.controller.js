@@ -131,3 +131,106 @@ exports.getAllUsers = async (req, res) => {
       .status(StatusCodes.INTERNAL_SERVER_ERROR);
   }
 };
+
+exports.sorgu1 = async (req, res) => {
+  try {
+    const data = await userService.userService.sorgu1(req);
+    res
+      .json({
+        ...baseResponse,
+        data: data,
+        timestamp: new Date(),
+        message: "Sorgu başarılı",
+        code: StatusCodes.OK,
+      })
+      .status(StatusCodes.OK);
+  } catch (error) {
+    res
+      .json({
+        ...baseResponse,
+        error: true,
+        success: false,
+        timestamp: new Date(),
+        code: StatusCodes.INTERNAL_SERVER_ERROR,
+        message: error.message,
+      })
+      .status(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};
+
+exports.sorgu2 = async (req, res) => {
+  try {
+    const data = await userService.userService.sorgu2(req);
+    res
+      .json({
+        ...baseResponse,
+        data: data,
+        timestamp: new Date(),
+        message: "Sorgu başarılı",
+        code: StatusCodes.OK,
+      })
+      .status(StatusCodes.OK);
+  } catch (error) {
+    res
+      .json({
+        ...baseResponse,
+        error: true,
+        success: false,
+        timestamp: new Date(),
+        code: StatusCodes.INTERNAL_SERVER_ERROR,
+        message: error.message,
+      })
+      .status(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};
+
+exports.sorgu3 = async (req, res) => {
+  try {
+    const data = await userService.userService.sorgu3(req);
+    res
+      .json({
+        ...baseResponse,
+        data: data,
+        timestamp: new Date(),
+        message: "Sorgu başarılı",
+        code: StatusCodes.OK,
+      })
+      .status(StatusCodes.OK);
+  } catch (error) {
+    res
+      .json({
+        ...baseResponse,
+        error: true,
+        success: false,
+        timestamp: new Date(),
+        code: StatusCodes.INTERNAL_SERVER_ERROR,
+        message: error.message,
+      })
+      .status(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};
+exports.sorgu4 = async (req, res) => {
+  try {
+    const data = await userService.userService.sorgu4(req);
+    res
+      .json({
+        ...baseResponse,
+        data: data,
+        timestamp: new Date(),
+        message: "Sorgu başarılı",
+        code: StatusCodes.OK,
+      })
+      .status(StatusCodes.OK);
+  } catch (error) {
+    res
+      .json({
+        ...baseResponse,
+        error: true,
+        success: false,
+        timestamp: new Date(),
+        code: StatusCodes.INTERNAL_SERVER_ERROR,
+        message: error.message,
+      })
+      .status(StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};

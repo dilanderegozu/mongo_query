@@ -19,7 +19,20 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
-    }
+    },
+    birthDate: {
+      type: Date,
+    },
+    zodiac: {
+      type: String,
+    },
+    age: {
+      type: Number,
+    },
+    gender: {
+      type: String,
+      enum: ["Erkek", "Kadın"]
+    },
   },
   {
     timestamps: true,

@@ -1,20 +1,29 @@
 const User = require("../models/user.model");
 const utils = require("../utils/index");
 
-exports.register = async (req, res) => {
+exports.register = async (req) => {
   try {
-    const { name, surname, email, password } = req.body;
-    const existUser = await User.find({ email: email });
-    if (existUser.length > 0) {
+    const { name, surname, email, password, gender, age, day, month } =
+      req.body;
+
+    const existUser = await User.findOne({ email });
+    if (existUser) {
       throw new Error("Email zaten kullanımda");
     }
-    const _password = utils.hashToPassword(password);
+
+  const _password = utils.hashToPassword(password);
+    const userZodiac = utils.calculateZodiac(day, month);
+
     const user = new User({
       name,
       surname,
       password: _password,
       email,
+      gender,
+      age,
+      zodiac: userZodiac,
     });
+
     await user.save();
     return user;
   } catch (error) {
@@ -25,12 +34,12 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const _password = utils.helper.hashToPassword(password);
+    const _password = utils.hashToPassword(password);
     const existUser = await User.findOne({ email: email, password: _password });
     if (!existUser) {
       throw new Error("Kullanıcı bilgileri yanlış");
     }
-    return user;
+    return "Giriş başarılı";
   } catch (error) {
     throw new Error(error);
   }
@@ -46,7 +55,7 @@ exports.updateUser = async (req) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { name: name, surname: surname },
-      { new: true }
+      { new: true },
     );
     return updatedUser;
   } catch (error) {
@@ -76,3 +85,59 @@ exports.getAllUsers = async () => {
     throw new Error(error);
   }
 };
+
+exports.sorgu1 = async (req) => {
+  try {
+    const { gender, zodiac } = req.params;
+
+    return await User.find({
+      gender: gender,
+      zodiac: zodiac,
+      age: { $exists: false }
+    });
+  } catch (error) { throw error; }
+};
+
+exports.sorgu2 = async (req) => {
+  try {
+    const { zodiac } = req.params;
+    return await User.find({
+      gender: "Kadın",
+      zodiac: zodiac, 
+      age: { $gte: 18, $lte: 40 }
+    });
+  } catch (error) { throw error; }
+};
+
+exports.sorgu3 = async (req) => {
+  try {
+    return await User.find({
+      $or: [
+        { gender: { $exists: false } },
+        { birthDate: { $exists: false } },
+        { age: { $exists: false } },
+      ]
+    });
+  } catch (error) { throw error; }
+};
+
+exports.sorgu4 = async (req) => {
+  try {
+    const { zodiac } = req.params;
+
+    return await User.find({
+      $or: [
+        { gender: "Erkek" },
+        { zodiac: zodiac }
+      ]
+    });
+  } catch (error) { throw error; }
+};
+
+
+/*
+sorgu1- cinsiyeti gender*  olan, burcu zodiac* olan ve age bilgisi bulunmayan kullanıcılar
+sorgu2- cinsiyeti Kadın olan, burcu zodiac* olan age aralığı 18-40 olan kullanıcılar
+sorgu3- cinsiyeti bulunmayan veya doğum tarihi bulunmayan veya yaş bilgisi bulunmayan kullanıcılar
+sorgu4- cinsiyeti Erkek olan veya burcu zodiac* olan (or)
+*/
