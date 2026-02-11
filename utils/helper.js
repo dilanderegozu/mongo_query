@@ -6,7 +6,7 @@ exports.hashToPassword = (password) => {
 
 
 // const bcrypt = require('bcrypt');
-// exports.hashPassword = async (password) => {
+// exports.hashToPassword = async (password) => {
 //     const saltRounds = 10; // Güvenlik seviyesi
 //     return await bcrypt.hash(password, saltRounds);
 // };
